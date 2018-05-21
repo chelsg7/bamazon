@@ -14,14 +14,11 @@ var connection = mysql.createConnection({
 
 connection.connect(function (err) {
   if (err) throw err;
-  console.clear();
   console.log("Connected as id: " + connection.threadId);
   runApp();
 });
 var runApp = function () {
-  console.clear();
   connection.query('SELECT * FROM products', function (err, res) {
-    console.clear();
     var table = new Table({
       head: ["item_id", "item_name", "department", "stock", "price"],
     });
@@ -43,14 +40,12 @@ var managerView = function () {
       name: "query"
     }, ])
     .then(function (inquirerResponse) {
-      if (inquirerResponse.query == "1" || "View Low Stock Items") {
+      if (inquirerResponse.query == "1 - View Low Stock Items") {
         console.log(inquirerResponse.query);
         lowInventory();
-      }
-      if (inquirerResponse.query == "2" || "Restock Existing Items") {
+      } else if (inquirerResponse.query == "2 - Restock Existing Item") {
         restockInventory();
-      }
-      if (inquirerResponse.query == "3" || "Add New Item") {
+      } else if (inquirerResponse.query == "3 - Add New Item") {
         addNewProduct();
       }
     });
@@ -125,7 +120,6 @@ var addProductInquirer = function ( itemName, itemDepartment, itemPrice, itemSto
       if (err) throw err;
     }
   );
-  console.clear();
   runApp();
 }
 
@@ -159,7 +153,7 @@ var restockInventory = function () {
             console.log("No Inventory Added")
           } else {
             console.log("Added " + addInventory + "to " + res[item_id].item_name +"'s inventory.");
-            var updatedAmount = availAmount + addInventory;
+            var updatedAmount = parseInt(availAmount) + parseInt(addInventory);
 
             connection.query("UPDATE products SET ? WHERE ?", [{
               stock: updatedAmount
@@ -168,13 +162,10 @@ var restockInventory = function () {
             }], function (err, res) {
               if (err) throw err;
             });
-            console.clear();
             runApp();
           }
         });
-        //inquirer confirm ending
       } else {
-        console.clear();
         runApp();
       }
     });

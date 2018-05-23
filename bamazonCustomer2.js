@@ -43,12 +43,12 @@ var buyItem = function () {
     inquirer.prompt(
         [{
             type: "input",
-            message: "What is the item_id of the item you would like to purchase?",
+            message: "What is the item_id of the item you would like to buy?",
             name: "item_id"
         },
         {
             type: "input",
-            message: "How many would you like to purchase?",
+            message: "How many would you like to buy?",
             name: "amount"
         },
         {
@@ -60,35 +60,34 @@ var buyItem = function () {
     ])
     .then(function (inquirerResponse) {
         if (inquirerResponse.confirm) {
-            connection.query("SELECT * from products", function (err, res) {
-                var purchase_id = inquirerResponse.item_id;
-                var item_id = purchase_id - 1;
-                var purchaseAmount = inquirerResponse.amount;
-                var availAmount = res[item_id].stock
-                if (purchaseAmount > availAmount) {
-                    console.log("There are not enough items in stock")
-                } else {
-                    console.log("Yay! Thank you for buying!");
-                    var updatedAmount = availAmount - purchaseAmount;
-                    
-                    connection.query("UPDATE products SET ? WHERE ?", [{
-                        stock: updatedAmount
-                    }, {
-                        item_id: purchase_id
-                    }], function (err, res) {
-                        if (err) throw err;
-                    });
-                    
-                    connection.query("SELECT * FROM products", function (err, res) {
-                        var calcPrice = res[item_id].price * purchaseAmount;
-                        console.log("\nYour total is today is: $" + calcPrice.toFixed(2) + " usd");
-                        process.exit();
-                        runApp();
-                    });
-                }
-            });
-        } else {
-            runApp();
-        }
-    });
-};
+          connection.query("SELECT * from products", function (err, res) {
+            var purchase_id = inquirerResponse.item_id;
+            var item_id = purchase_id - 1;
+            var purchaseAmount = inquirerResponse.amount;
+            var availAmount = res[item_id].stock;
+            if (purchaseAmount > availAmount) {
+                console.log("There is currently nout enough stock to fill your order")
+            } else {
+                console.log("Thank you!");
+                var updatedAmount = parseInt(availAmount) - parseInt(purchaseAmount);
+                connection.query("UPDATE products SET ? WHERE ?", [{
+                    stock: updatedAmount
+                }, {
+                    item_id: purchase_id
+                }], function (err, res) {
+                    if (err) throw err;
+                });
+                connection.query("SELECT * FROM products", function (err, res) {
+                    var calcPrice = res[item_id].price * purchaseAmount;
+                    console.log("\nYour total is today is: $" + calcPrice.toFixed(2) + "!!");
+                    process.exit();
+                });
+            }
+        });
+        //inquirer confirm endin
+    } else {
+        runApp();
+    }
+});
+}
+  

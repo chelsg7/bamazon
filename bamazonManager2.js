@@ -73,22 +73,22 @@ var addNewProduct = function (){
       type: "list",
       message: "What is the type of the product you wish to add?",
       choices: ["Pet Supplies", "Health & Beauty", "Recreation", "Clothing"],
-      name: "itemDepartment"
+      name: "departmentInput"
     },
     {
       type: "input",
       message: "What is the name of the item?",
-      name: "itemName"
+      name: "item_name"
     },
     {
       type: "input",
       message: "How many should be stocked?",
-      name: "itemStock"
+      name: "stockInput"
     },
     {
       type: "input",
       message: "How much is the item?",
-      name: "itemPrice"
+      name: "priceInput"
     },
     {
       type: "confirm",
@@ -100,21 +100,21 @@ var addNewProduct = function (){
   ])
   .then(function (inquirerResponse) {
     if( inquirerResponse.confirm == true){
-      addProductInquirer(inquirerResponse.item_name, inquirerResponse.department, inquirerResponse.stock, inquirerResponse.price);
+      addProductInquirer(inquirerResponse.item_name, inquirerResponse.departmentInput, inquirerResponse.stockInput, inquirerResponse.priceInput);
       } else {
         runApp();
       }
   });
 
 }
-var addProductInquirer = function ( itemName, itemDepartment, itemPrice, itemStock) {
+var addProductInquirer = function ( item_name, departmentInput, stockInput, priceInput) {
   
   var query = connection.query(
     "INSERT INTO products SET ?", {
-      item_name: productNameInput,
-      department: productDepartmentInput,
-      price: productPriceInput,
-      stock: productStockInput
+      item_name: item_name,
+      department: departmentInput,
+      stock: stockInput,
+      price: priceInput,
     },
     function (err, res) {
       if (err) throw err;
@@ -133,7 +133,7 @@ var restockInventory = function () {
       {
         type: "input",
         message: "How much would you like to stock?",
-        name: "productAddInventory"
+        name: "add_stock"
       },
       {
         type: "confirm",
@@ -147,10 +147,10 @@ var restockInventory = function () {
         connection.query("SELECT * from products", function (err, res) {
           var add_item_id = inquirerResponse.add_item_id;
           var item_id = add_item_id - 1;
-          var addInventory = inquirerResponse.productAddInventory;
+          var addInventory = inquirerResponse.add_stock;
           var availAmount = res[item_id].stock;
           if (addInventory <= 0) {
-            console.log("No Inventory Added")
+            console.log("You Didn't Add Any Stock.")
           } else {
             console.log("Added " + addInventory + "to " + res[item_id].item_name +"'s inventory.");
             var updatedAmount = parseInt(availAmount) + parseInt(addInventory);
@@ -169,5 +169,4 @@ var restockInventory = function () {
         runApp();
       }
     });
-
 }

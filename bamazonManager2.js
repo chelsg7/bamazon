@@ -144,15 +144,18 @@ var restockInventory = function () {
     ])
     .then(function (inquirerResponse) {
       if (inquirerResponse.confirm) {
-        connection.query("SELECT * from products", function (err, res) {
-          var add_item_id = inquirerResponse.add_item_id;
-          var item_id = add_item_id - 1;
+        var add_item_id = inquirerResponse.add_item_id;
+        connection.query("SELECT * from products where ?",{
+          item_id : add_item_id
+        }, function (err, res) {
+          // var add_item_id = inquirerResponse.add_item_id;
+          var newitem_id = parseInt(add_item_id) - 1;
           var addInventory = inquirerResponse.add_stock;
-          var availAmount = res[item_id].stock;
+          var availAmount = res[0].stock;
           if (addInventory <= 0) {
             console.log("You Didn't Add Any Stock.")
           } else {
-            console.log("Added " + addInventory + "to " + res[item_id].item_name +"'s inventory.");
+            console.log("Added " + addInventory + "to " + res[0].item_name +"'s inventory.");
             var updatedAmount = parseInt(availAmount) + parseInt(addInventory);
 
             connection.query("UPDATE products SET ? WHERE ?", [{

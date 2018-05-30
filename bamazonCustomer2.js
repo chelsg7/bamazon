@@ -60,34 +60,39 @@ var buyItem = function () {
     ])
     .then(function (inquirerResponse) {
         if (inquirerResponse.confirm) {
-          connection.query("SELECT * from products", function (err, res) {
             var purchase_id = inquirerResponse.item_id;
-            var item_id = purchase_id - 1;
             var purchaseAmount = inquirerResponse.amount;
-            var availAmount = res[item_id].stock;
-            if (purchaseAmount > availAmount) {
-                console.log("There is currently nout enough stock to fill your order")
-            } else {
-                console.log("Thank you!");
-                var updatedAmount = parseInt(availAmount) - parseInt(purchaseAmount);
-                connection.query("UPDATE products SET ? WHERE ?", [{
-                    stock: updatedAmount
-                }, {
-                    item_id: purchase_id
-                }], function (err, res) {
-                    if (err) throw err;
-                });
-                connection.query("SELECT * FROM products", function (err, res) {
-                    var calcPrice = res[item_id].price * purchaseAmount;
-                    console.log("\nYour total is today is: $" + calcPrice.toFixed(2) + "!!");
-                    process.exit();
-                });
-            }
-        });
+            connection.query("SELECT * from products where ?",{
+                item_id : purchase_id
+            }, function (err, res) {
+            
+                console.log(res);
+                var availAmount = res[0].stock;
+                if (purchaseAmount > availAmount) {
+                    console.log("Not enough of the item in stock.")
+                } else {
+                    console.log("Thank you!");
+                    var updatedAmount = parseInt(availAmount) - parseInt(purchaseAmount);
+                    connection.query("UPDATE products SET ? WHERE ?", [{
+                        stock: updatedAmount
+                    }, {
+                        item_id: purchase_id
+                    }], function (err, res) {
+                        if (err) throw err;
+                        connection.query("SELECT * FROM products", function (err, res) {
+                            var calcPrice = res[0].price * purchaseAmount;
+                            console.log("\nYour total is today is: $" + calcPrice.toFixed(2) + "!!");
+                            // process.exit();
+                            runApp();
+                        });
+                    });
+                }
+            });
         //inquirer confirm endin
-    } else {
-        runApp();
-    }
+        } 
+        else {
+            runApp();
+        }
 });
 }
   
